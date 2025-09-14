@@ -1,0 +1,329 @@
+{
+  "name": "My workflow 6",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "75e66eef-0618-4f01-9dff-45e20db8d575",
+      "name": "When chat message received",
+      "webhookId": "5298c873-92e5-414e-8d05-b28001e15b1c"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a website support agent. You are also capable of checking calendar for available slots and book the event in my calendar timezone is always Berlin. Keep you response concise, short and professional.\n\nYou have a number of tools at your disposal\n\n1. Send Email - Use this tool to send an email to the customer support team if needed or requested by the user\n2. RAG Question - Use this tool for general business FAQ questions\n3. Get Events: With this you can get events from the calendar to decide if that slot is available\n4. Create Event: If the requested time is available then with this you will create an event for 30 min in the google calendar with user email as an attendee and description\n5. Date & Time: Use this tool to get todays date and then analyse phrases like tomorrow, in x days\n\nIf the user asks to book and appointment please ask for\nDate:\nTime:\nEmail:\nShort Description:\nor send them to the booking page \"your booking page link\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0815bc16-4548-44ea-909f-58d4ba01a7f2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        112,
+        224
+      ],
+      "id": "962ee68b-6ecb-4055-a30e-56d1ed98bbe6",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XZ2ZsQaAQFtjUtEY",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "yourid@group.calendar.google.com",
+          "mode": "id"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        224
+      ],
+      "id": "fa76c7c1-5c44-4e68-b431-cb73ca292f52",
+      "name": "Get Events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pnijC1diC8Id3mjM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "yourid@group.calendar.google.com",
+          "mode": "id"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "sendUpdates": "all",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        224
+      ],
+      "id": "f49ccae4-12c6-43cd-9dad-c5da376ed2bd",
+      "name": "Create Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pnijC1diC8Id3mjM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Calendar Booking Handler\nChecks the availability and books an event in google calendar",
+        "height": 336,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "bf2add03-fdd4-4863-93ff-f3f5ee5cdf10",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "tableName": "your_table_name"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        224
+      ],
+      "id": "639a4845-1781-426b-a98a-c40ad54f9221",
+      "name": "Store Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "SjsxJqgbT2fuJqyP",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to query business FAQ questions",
+        "method": "POST",
+        "url": "\"Your URL\"",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Api-Key",
+              "value": "\"Your API KEY\""
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Pinecone-API-Version",
+              "value": "2025-04"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.chatInput }}\"\n    }\n  ],\n  \"stream\": false,\n  \"model\": \"gpt-4o\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        224
+      ],
+      "id": "17b8e76d-de55-4c2c-8036-74c0db341d07",
+      "name": "RAG API Call"
+    },
+    {
+      "parameters": {
+        "sendTo": "\"Your Email\"",
+        "subject": "Support Request - Website Chatbot",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        224
+      ],
+      "id": "0631a8c6-1257-4255-a0b4-185f040717e8",
+      "name": "Send Email to Support",
+      "webhookId": "4bd07b21-94c6-47e8-b1a6-f240111e60e4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KcNY3QOO2DxDtU6D",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        768,
+        224
+      ],
+      "id": "d0838ab3-21e1-44dc-adb2-4e5320d855ce",
+      "name": "Date & Time"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG API Call": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email to Support": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "meta": {
+    "instanceId": "a1c0f6f0d3e77bf5b7de91799674330fa5da602706c45f0c4717d7756e7e33e8"
+  },
+  "tags": []
+}
