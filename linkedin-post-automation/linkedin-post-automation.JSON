@@ -1,0 +1,697 @@
+{
+  "name": "LinkedIn Post Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "72f32a8c-3ab8-46a0-a890-f9928d492401",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -2112,
+        304
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "yourid",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "6fd98a24-05b1-4124-8f76-247c7b3c2ce4",
+      "name": "Read Pending Ideas",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -976,
+        304
+      ],
+      "typeVersion": 4.4,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FtxgglXaTvQC5u3D",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"title\": \n\"The 80% Automation Rule: Why You Don't Need Engineers for Most Business Operations\",\n\"rationale\": \n\"SMEs waste resources hiring developers for tasks that can be automated with no-code tools. This topic addresses the cost-efficiency and speed advantages of Airtable automation for common business workflows.\",\n\"hook\": \n\"Stop waiting 6 months for engineering resources. Here's how to automate 80% of your operations in weeks, not quarters — without writing a single line of code.\"\n}"
+      },
+      "id": "9c4be6b0-6905-46bb-a732-e85fc896ffc6",
+      "name": "Selection Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -352,
+        528
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a linkedin content creator and copywriter. Given the title {{ $json.output.title }}, the rationale {{ $json.output.rationale }}, suggested hook {{ $json.output.hook }}. Generate text content for a linkedin post. k) start the post as if it was a conversation. Hook in the first 1–2 lines — make people stop scrolling. Use short paragraphs. Use white space (line breaks) to make it easy to read.) sharing a practical Airtable tip or automation idea, ideally using a new feature or an AI-powered workflow only if applicable. The tone should be friendly, expert, and a bit curious—designed to spark conversation and make readers want to try it themselves. add emojis to make it live and relevant hashtags, you can add some emojis, and use enthusiastic tone.\n\nAlso you are SEO specialist for LinkedIn. Your task is to generate highly relevant and effective hashtags for the following post. Consider the post's content, target audience, and current LinkedIn trends to maximize visibility and engagement.\nPlease generate hastags inside the \"post content\":\n1. **3-5 broad, high-volume hashtags** (e.g., #AI, #Marketing, #Business)\n2. **3-5 niche-specific hashtags** that are directly relevant to the post's core topic (e.g., #SocialMediaAutomation, #ContentCreationAI, #LinkedInMarketingTips)\n3. **1-2 trending/topical hashtags** if applicable (e.g., #FutureOfWork, #DigitalTransformation)",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "64905cc9-3f0a-4af7-bcc3-5b1b87c637e9",
+      "name": "Content creator",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -176,
+        304
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"post title\": \"Exciting New Feature Launch 🚀\",\n  \"post content\": \"After months of collaboration, testing, and fine-tuning, we're thrilled to introduce our latest product feature: Smart Insights. It helps users uncover meaningful patterns in their data with just a few clicks. This wouldn't have been possible without our incredible team and supportive community. We're excited for what's next — and we'd love your feedback!\"\n}"
+      },
+      "id": "afaf8fb2-0173-47f4-a9e4-ae98b1616016",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -48,
+        528
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "yourid",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "70d90406-8326-4f1c-a608-9908734d368d",
+      "name": "Mark Idea as Completed",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        240,
+        160
+      ],
+      "typeVersion": 4.4,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FtxgglXaTvQC5u3D",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "kzdMRaieNx",
+        "text": "={{ $json.output['post title'] }}\n\n{{ $json.output['post content'] }}",
+        "additionalFields": {}
+      },
+      "id": "75a3e146-49d9-4627-a2ef-5227f88e2f4b",
+      "name": "LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        240,
+        336
+      ],
+      "typeVersion": 1,
+      "executeOnce": true,
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "QrViqz9Okj4Q8Fkh",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        528
+      ],
+      "id": "db25d683-0a17-4100-b9d2-4da00cac4215",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XZ2ZsQaAQFtjUtEY",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        528
+      ],
+      "id": "f183e978-e1fc-4b00-a043-111942aa71f9",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XZ2ZsQaAQFtjUtEY",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        528
+      ],
+      "id": "36997f4f-a756-4ed9-a3ec-40a3a13da4eb",
+      "name": "Selection Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XZ2ZsQaAQFtjUtEY",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Your role is to generate high-value content topics that align with Airstudio's positioning and resonate with its audience, while subtly guiding readers toward booking a free discovery call: Airstudio Discovery Call. \"your booking link\" embed the link into text. \n\n⸻\n\n🔍 What to Focus On\n\nGenerate content topics (not full posts) around these strategic themes:\n\t•\tAirtable for Workflow Automation & Scalable Systems\n\t•\tNo/Low-Code Tools for Solopreneurs and Growing Teams\n\t•\tAutomating Content, Leads, and Operations Without Engineering Teams\n\t•\tSystems Thinking for Scaling Personal Brands & Agencies\n\t•\tThe Future of No-Code + AI Collaboration in Business\n\t•\tCase-Style Breakdowns: What Can Be Automated in 1 Week With Airtable\n\n⸻\n\n✅ Your Output Per Topic\n\nFor each idea, generate the following:\n\t1.\tTopic Title / Core Idea (1 line)\n\t2.\tShort Rationale (why this topic matters for enterprises, SME)\n\t3.\tSuggested Angle or Hook (LinkedIn-style framing, ideally contrarian, practical, or future-minded)\n\t4.\tCTA Direction → Subtly tie back to booking a free discovery call at Airstudio Discovery Call.\n\n⸻\n\n💡 Style Guide\n\t•\tKeep ideas insightful, actionable, and founder-sharp (not fluffy or hypey).\n\t•\tShow authority + clarity — people should feel, \"This is exactly what I need, and it's doable.\"\n\t•\tUse contrarian takes where useful (e.g., \"You don't need an engineer to automate 80% of your ops\").\n\t•\tAlways open a curiosity loop that positions Airstudio as the \"hands-free solution.\"\n\nDO NOT add values from Our usecases alwalways add what is possible.\n\nIMPORTANT: DO NOT generate ideas which are already present in the list {{ $json.data }}\n\nCreate new a row in google sheet for each generated ideas. If there are 3 ideas then create new 3 rows unique ideas with correct mapping.\n\nCreate final output as a JSON of ideas.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "b5ff4d6f-71f9-4489-9efb-d5c1d6f427e6",
+      "name": "Content topic generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1392,
+        304
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "yourid",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1888,
+        304
+      ],
+      "id": "9be5b97e-c194-449b-8bb3-9ef7270e2964",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FtxgglXaTvQC5u3D",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "allFieldsExcept",
+        "fieldsToExclude": "row_number, status",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1664,
+        304
+      ],
+      "id": "8a6b6cf7-a3c7-4546-81b1-27579f2f50b5",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "yourid",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -1312,
+        528
+      ],
+      "id": "f792630a-0d70-4953-9028-b94c04deb2ea",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FtxgglXaTvQC5u3D",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[{\n \"title\": \"AI as Your First Content Hire: Why Founders Shouldn't Wait to Outsource Creation\",\n            \"rationale\": \"Most solopreneurs delay content scaling because they think hiring a ghostwriter is the next step — but AI can handle 80% with proper systems. This shifts content from a creative bottleneck to a scalable growth lever.\",\n            \"hook\": \"Ghostwriters are outdated. Train GPT once, and it ships LinkedIn gold in your voice daily. Welcome to hands-free thought leadership.\"\n          }]"
+      },
+      "id": "25adfc9f-4075-4297-8bd2-112bbfe44341",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -1152,
+        528
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "title"
+            },
+            {
+              "fieldToAggregate": "rationale"
+            },
+            {
+              "fieldToAggregate": "hook"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        304
+      ],
+      "id": "d4d8e59a-346c-454c-8383-93422ec0871b",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content strategist tasked with selecting the best content idea from a list of available topics. \n\nAnalyze the following ideas and select the ONE that:\n1. Has the highest engagement potential\n2. Is most timely and relevant\n3. Aligns best with current market trends\n4. Has strong conversion potential\n\nHere are multiple content ideas from Google Sheets: {{ $json.title }} {{ $json.rationale }} {{ $json.hook }}\n\nCreate final output as a JSON of selected idea, with following format and keep the corresponding rationale and hook according to title selected\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "156ed391-c1df-4143-8fec-cdc08cb69265",
+      "name": "Select Best Idea",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -528,
+        304
+      ],
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {
+    "Read Pending Ideas": [
+      {
+        "json": {
+          "row_number": 2,
+          "title": "The 80% Automation Rule: Why You Don't Need Engineers for Most Business Operations",
+          "rationale": "SMEs waste resources hiring developers for tasks that can be automated with no-code tools. This topic addresses the cost-efficiency and speed advantages of Airtable automation for common business workflows.",
+          "hook": "Stop waiting 6 months for engineering resources. Here's how to automate 80% of your operations in weeks, not quarters — without writing a single line of code.",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 3,
+          "title": "The Airtable-AI Fusion: How to Build Self-Optimizing Workflows Without Code",
+          "rationale": "Enterprises and SMEs need systems that adapt in real-time to changing business conditions. This topic addresses the growing demand for intelligent automation that learns from data patterns and optimizes processes autonomously, reducing manual intervention and scaling operational efficiency.",
+          "hook": "Most no-code workflows are static. Here's how to build ones that actually learn and improve themselves using Airtable + AI integrations.",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 4,
+          "title": "The Airtable-Powered Content Engine: How to Automate Your Entire Content Pipeline Without Code",
+          "rationale": "SMEs waste countless hours on manual content workflows - this shows how to systematize ideation, creation, and distribution using Airtable, saving 10+ hours weekly while improving content quality",
+          "hook": "Most content teams are stuck in spreadsheets and chaos. Here's how to build a self-running content machine that scales with your business (no engineers needed).",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 5,
+          "title": "Why Your CRM Is Holding You Back: The Airtable Alternative for Hyper-Growth Teams",
+          "rationale": "Traditional CRMs become bottlenecks as companies scale - Airtable offers customizable, automated lead management that adapts to changing business needs without technical debt",
+          "hook": "Your CRM was built for sales teams of 2010. Here's how forward-thinking companies are building custom revenue engines that scale with them (and why it's 3x cheaper).",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 6,
+          "title": "The Airtable-Powered Content Engine: How to Automate Your Entire Content Pipeline Without Code",
+          "rationale": "SMEs waste countless hours on manual content workflows - this shows how to systematize ideation, creation, and distribution using Airtable, saving 10+ hours weekly while improving content quality",
+          "hook": "Most content teams are stuck in spreadsheets and chaos. Here's how to build a self-running content machine that scales with your business (no engineers needed).",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 7,
+          "title": "The Solopreneur's Automation Stack: How 1 Person Can Run a $500k Business Using Only No-Code Tools",
+          "rationale": "Individual founders need enterprise-grade systems without enterprise complexity - this demonstrates how Airtable + no-code can replace entire teams for operations, marketing, and customer management",
+          "hook": "You don't need a team to build systems that scale. Here's exactly how I automated 90% of my business operations as a solo founder (and where most people get stuck).",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 8,
+          "title": "The Airtable-AI Fusion: Why Your Next Business Analyst Will Be No-Code + AI",
+          "rationale": "Enterprises and SMEs are struggling with data analysis bottlenecks. This topic addresses how combining Airtable's structured data capabilities with AI tools creates scalable business intelligence without expensive data teams, making advanced analytics accessible to growing businesses.",
+          "hook": "Forget hiring another data analyst. Your most valuable business insights will soon come from Airtable + AI workflows that cost 90% less and deliver results 3x faster. Here's the blueprint that's working for agencies right now.",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 9,
+          "title": "The Airtable-AI Fusion: How to Build Self-Optimizing Business Systems Without Code",
+          "rationale": "Enterprises and SMEs need systems that adapt in real-time to market changes and operational bottlenecks, but lack the technical resources to build complex AI integrations from scratch",
+          "hook": "Most businesses are using Airtable wrong - they're building static databases when they could be creating intelligent systems that learn and optimize automatically. Here's how to bridge the gap without engineering teams",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 10,
+          "title": "The Solopreneur's Scalability Trap: Why Your Airtable Setup Will Break at 10 Clients (And How to Future-Proof It)",
+          "rationale": "Growing service businesses hit operational ceilings when their manual systems can't handle increased client volume, leading to missed opportunities and burnout",
+          "hook": "Scaling from 5 to 50 clients requires completely different systems thinking - most solopreneurs build for today's volume, not tomorrow's growth. The breaking point is predictable and preventable",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 11,
+          "title": "The Airtable-AI Fusion: How to Build Self-Optimizing Business Systems Without Code",
+          "rationale": "Enterprises and SMEs struggle with static systems that don't adapt to changing business needs. This topic addresses the growing demand for intelligent, self-improving workflows that leverage AI without requiring engineering resources, making automation accessible to non-technical teams.",
+          "hook": "Most no-code automations are dumb pipelines. Here's how to build systems that learn from your data and optimize themselves — no engineers required.",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 12,
+          "title": "Why Your Content Calendar Is Broken (And How Airtable Fixes It Forever)",
+          "rationale": "Content teams waste hours on disjointed calendars and missed opportunities. This topic solves the universal pain point of content operations by showing how Airtable creates a single source of truth for planning, production, and performance tracking across teams.",
+          "hook": "Stop using spreadsheets for content. Here's the Airtable system that turned our 5-person team into a content machine that never misses a beat.",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 13,
+          "title": "The Airtable-Only Agency: How We Run a 6-Figure Business Without Traditional CRMs",
+          "rationale": "SMEs and agencies waste thousands on bloated CRM platforms when Airtable can handle client pipelines, project management, and billing in one flexible system - reducing costs by 70%+ while maintaining enterprise-grade functionality",
+          "hook": "Most agencies are overpaying for CRM software by 300%. Here's how we built our entire client operations on Airtable alone (and why you should too)...",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 14,
+          "title": "No-Code AI Agents: Automate Customer Support & Lead Qualification Without Engineering",
+          "rationale": "Enterprises spend $50k+ monthly on support teams while SMEs lose qualified leads to slow response times - AI-powered Airtable workflows can handle 80% of initial inquiries instantly, scaling support capacity without hiring",
+          "hook": "Your customer support team is costing you 5x what it should. Here's how to build AI-powered response systems that work while you sleep (no coding required)...",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 15,
+          "title": "The Airtable API Gateway: How Non-Technical Teams Can Build Custom Integrations Without Code",
+          "rationale": "Enterprises and SMEs need seamless integration capabilities but lack developer resources. This topic addresses the growing demand for no-code API solutions that connect Airtable to other business tools, enabling scalable automation without technical debt.",
+          "hook": "Your CRM, project management, and payment systems can talk to each other without a single line of code. Here's how non-technical teams are building custom integrations that would normally require engineering resources.",
+          "status": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 16,
+          "title": "No-Code Financial Dashboards: How to Automate Revenue Tracking and Client Reporting in Airtable",
+          "rationale": "Financial visibility is critical for SMEs scaling rapidly. This topic demonstrates how non-technical founders can build automated financial dashboards that track revenue, expenses, and client profitability without complex accounting software or developer intervention.",
+          "hook": "Stop manually updating spreadsheets for financial reporting. Here's how solopreneurs are building automated financial dashboards that update in real-time and provide actionable insights without accounting degrees.",
+          "status": ""
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pending Ideas": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content creator": {
+      "main": [
+        [
+          {
+            "node": "Mark Idea as Completed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Idea as Completed": {
+      "main": [
+        []
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Content creator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content topic generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content creator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selection Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Select Best Idea",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content topic generator": {
+      "main": [
+        [
+          {
+            "node": "Read Pending Ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selection Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Select Best Idea",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Content topic generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Content topic generator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Content topic generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Select Best Idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Best Idea": {
+      "main": [
+        [
+          {
+            "node": "Content creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc65b965-6fe6-498b-b4a3-b6a93a249e56",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1c0f6f0d3e77bf5b7de91799674330fa5da602706c45f0c4717d7756e7e33e8"
+  },
+  "id": "gJgKlRCsf0ooMsor",
+  "tags": []
+}
